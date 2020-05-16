@@ -1,32 +1,24 @@
 use crate::homectl_core::{
-    device::{Device, DeviceKind, OnOffDevice},
-    integration::Integration,
+    device::Device,
+    integration::{Integration, IntegrationId},
+    integrations_manager::SharedIntegrationsManager,
 };
 use async_trait::async_trait;
-use serde::Deserialize;
 use std::{collections::HashMap, error::Error};
 
-#[derive(Debug, Deserialize)]
-pub struct DummyConfig {
-    asd: String,
-}
-
-pub struct Dummy {
+pub struct Hue {
     id: String,
     devices: Vec<Device>,
+    shared_integrations_manager: SharedIntegrationsManager,
 }
 
-impl Integration for Dummy {
+#[async_trait]
+impl Integration for Hue {
     fn new(
         id: &IntegrationId,
-        config: &config::Value,
+        _config: &String,
         shared_integrations_manager: SharedIntegrationsManager,
     ) -> Self {
-        println!(
-            "asdasd: {:?}",
-            config.clone().try_into::<DummyConfig>().unwrap()
-        );
-
         // test that we can call methods on integrations_manager
         // {
         //     let mut integrations_manager = shared_integrations_manager.lock().unwrap();
@@ -37,13 +29,25 @@ impl Integration for Dummy {
         //     );
         // }
         Dummy {
-            id,
+            id: id.clone(),
             devices: Vec::new(),
+            shared_integrations_manager,
         }
     }
 
-    fn register(&self) {
+    async fn register(&self) -> Result<(), Box<dyn Error>> {
+        let resp: HashMap<String, String> =
+            reqwest::get("https://httpbin.org/ip").await?.json().await?;
+        println!("{:#?}", resp);
         println!("registered dummy integration");
+
+        Ok(())
+    }
+
+    async fn start(&self) -> Result<(), Box<dyn Error>> {
+        println!("started dummy integration");
+
+        Ok(())
     }
 
     fn get_devices(&self) -> Vec<Device> {

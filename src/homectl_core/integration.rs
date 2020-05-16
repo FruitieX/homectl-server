@@ -4,7 +4,11 @@ use super::device::{Device, DeviceKind};
 
 pub trait Integration {
     // rustc --explain E0038
-    fn new(id: String) -> Self
+    fn new(
+        id: &IntegrationId,
+        config: &config::Value,
+        integrations_manager: SharedIntegrationsManager,
+    ) -> Self
     where
         Self: Sized;
 
