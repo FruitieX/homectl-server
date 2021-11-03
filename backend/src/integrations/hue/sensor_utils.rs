@@ -14,7 +14,6 @@ pub enum DimmerSwitchButtonId {
     Off,
     Unknown,
 }
-
 #[derive(Clone, PartialEq)]
 pub enum DimmerSwitchButtonPressType {
     NotUsed,
@@ -47,7 +46,6 @@ pub fn cmp_button_id(buttonevent: BridgeButtonEvent, button_id: DimmerSwitchButt
 fn get_button_state(buttonevent: BridgeButtonEvent) -> DimmerSwitchButtonPressType {
     let str = buttonevent.to_string();
     let state = str.chars().nth(3);
-
     match state {
         Some('0') => DimmerSwitchButtonPressType::NotUsed, // INITIAL_PRESSED
         Some('1') => DimmerSwitchButtonPressType::NotUsed, // HOLD
