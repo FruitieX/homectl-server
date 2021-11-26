@@ -117,6 +117,7 @@ fn load_integration(
         "ping" => Ok(Box::new(Ping::new(id, config, event_tx)?)),
         "tuya" => Ok(Box::new(Tuya::new(id, config, event_tx)?)),
         "wake_on_lan" => Ok(Box::new(WakeOnLan::new(id, config, event_tx)?)),
+        "ping" => Ok(Box::new(Ping::new(id, config, event_tx)?)),
         _ => Err(anyhow!("Unknown module name {}!", module_name)),
     }
 }
