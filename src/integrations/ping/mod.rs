@@ -66,16 +66,16 @@ impl Integration for Ping {
 
         task::spawn(async move {
             loop {
-                let poll_rate = Duration::from_millis(1000);
+                let poll_rate = Duration::from_millis(10000);
                 let mut interval = stream::interval(poll_rate);
 
                 for device in &config.machines {
                     interval.next().await;
-
                     let status = Command::new("sh")
                         .arg(format!("ping {}", device.ip))
                         .arg("-w 5")
                         .status();
+
                     update_state(device, &id, status.is_ok(), &sender)
                 }
             }
