@@ -18,11 +18,9 @@ pub enum SensorRuleState {
     },
     DimmerSwitch {
         on: Option<bool>,
-        on_long: Option<bool>,
         up: Option<bool>,
         down: Option<bool>,
         off: Option<bool>,
-        off_long: Option<bool>,
     },
     Unknown,
 }

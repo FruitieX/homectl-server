@@ -137,8 +137,6 @@ pub enum SensorKind {
         up: bool,
         down: bool,
         off: bool,
-        on_long: bool,
-        off_long: bool,
     },
     Unknown,
 }
