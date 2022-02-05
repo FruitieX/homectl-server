@@ -59,7 +59,7 @@ pub struct SceneDeviceState {
     pub power: bool,
     pub color: Option<ColorConfig>,
     pub brightness: Option<f32>,
-    pub cct: Option<CorrelatedColorTemperature>,
+    pub cct: Option<CorrelatedColonTemperature>,
     pub transition_ms: Option<u64>,
 }
 

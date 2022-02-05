@@ -1,7 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i bash default.nix
 
-cargo install trunk
+cargo install trunk --force
 cd frontend
-npm install
 trunk serve

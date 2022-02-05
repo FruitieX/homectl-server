@@ -46,14 +46,14 @@ pub enum DeviceColor {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct CorrelatedColorTemperature {
+pub struct CorrelatedColonTemperature {
     cct: f32,
     device_range: Range<f32>,
 }
 
-impl CorrelatedColorTemperature {
-    pub fn new(cct: f32, device_range: Range<f32>) -> CorrelatedColorTemperature {
-        CorrelatedColorTemperature { cct, device_range }
+impl CorrelatedColonTemperature {
+    pub fn new(cct: f32, device_range: Range<f32>) -> CorrelatedColonTemperature {
+        CorrelatedColonTemperature { cct, device_range }
     }
 
     pub fn set_cct(&self, cct: f32) -> CorrelatedColorTemperature {
