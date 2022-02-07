@@ -1,3 +1,4 @@
+use crate::integrations::ping::Ping;
 use crate::integrations::{
     boolean::Boolean, circadian::Circadian, dummy::Dummy, hue::Hue, lifx::Lifx, neato::Neato,
     random::Random, timer::Timer, tuya::Tuya, wake_on_lan::WakeOnLan, ping::Ping
@@ -10,7 +11,6 @@ use homectl_types::{
     integration::{Integration, IntegrationActionPayload, IntegrationId},
 };
 use std::{collections::HashMap, sync::Arc};
-
 pub type IntegrationsTree = HashMap<IntegrationId, Arc<Mutex<Box<dyn Integration + Send>>>>;
 
 #[derive(Clone)]
