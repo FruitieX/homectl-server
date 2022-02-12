@@ -241,10 +241,10 @@ fn to_tuya_state(device: &Device, device_config: &TuyaDeviceConfig) -> Result<Tu
             power,
             transition_ms,
         }) => Ok(Light {
-            power,
-            brightness,
-            color,
-            transition_ms,
+            power: power.clone(),
+            brightness: brightness.clone(),
+            color: color.clone(),
+            transition_ms: transition_ms.clone(),
         }),
         _ => Err(anyhow!("Unsupported device state")),
     }?;
@@ -270,28 +270,16 @@ fn to_tuya_state(device: &Device, device_config: &TuyaDeviceConfig) -> Result<Tu
             }
         }
         Some(DeviceColor::Cct(cct)) => {
-            if device_config.color_temp_field.is_some() {
-                // Received color temperature and device supports color temperatures
-                let state = ct_to_tuya(light_state.power, light_state.brightness, cct.get_cct());
+            // Range of my bulbs is from 2700K - 4100K (and they express this as a
+            // 0-1000 range), this is very likely not true for all Tuya bulbs
+            let min_supported_temp = 2700.0;
+            let max_supported_temp = 4100.0;
 
-                Ok(state)
-            } else if device_config.color_field.is_some() {
-                // Received color temperature but device only supports colors, do conversion
-                let rgb = cct_to_rgb(cct.get_cct());
-                let hsv: Hsv = rgb.into();
-                let state = hsv_to_tuya(light_state.power, light_state.brightness, hsv);
-
-                Ok(state)
-            } else {
-                // No color support at all
-                Ok(power_to_tuya(light_state.power))
-            }
-        }
-        None => {
-            // Brightness goes from 10 to 1000 ¯\_(ツ)_/¯
-            let brightness = light_state
-                .brightness
-                .map(|bri| f32::floor(bri * 990.0) as u32 + 10);
+            // Scale the value into 0.0 - 1.0 range
+            let q =
+                (cct.get_cct() - min_supported_temp) / (max_supported_temp - min_supported_temp);
+            let q = q.clamp(0.0, 1.0);
+            let color_temperature = f32::floor(q * 1000.0) as u32;
 
             Ok(TuyaState {
                 power_on: light_state.power,
