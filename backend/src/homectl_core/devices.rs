@@ -37,7 +37,6 @@ fn cmp_light_color(
         (Some(DeviceColor::Color(a)), Some(DeviceColor::Color(b))) => {
             let mut a_hsv: Hsv = *a;
             let mut b_hsv: Hsv = *b;
-
             a_hsv.value *= a_bri.unwrap_or(1.0);
             b_hsv.value *= b_bri.unwrap_or(1.0);
 
