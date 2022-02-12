@@ -502,7 +502,7 @@ async fn get_tuya_state(
 
         Ok(device)
     } else {
-        Err(anyhow!("Unsupported Tuya response"))
+        panic!("Response not supported")
     }
 }
 

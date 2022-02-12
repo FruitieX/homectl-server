@@ -203,12 +203,6 @@ pub fn to_lifx_state(device: &Device) -> Result<LifxState> {
         }),
         _ => Err(anyhow!("Unsupported device state")),
     }?;
-
-    let power = if light_state.power { 65535 } else { 0 };
-    let transition = light_state
-        .transition_ms
-        .map(|transition_ms| transition_ms as u32);
-
     match light_state.color {
         Some(DeviceColor::Color(color)) => {
             let hue =
