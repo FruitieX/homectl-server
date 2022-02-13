@@ -117,6 +117,7 @@ pub fn bridge_sensor_to_device(
                 integration_id,
                 scene,
                 state: kind,
+                capabilities: None,
             }
         }
 
@@ -150,6 +151,7 @@ pub fn bridge_sensor_to_device(
                 integration_id,
                 scene,
                 state: kind,
+                capabilities: None,
             }
         }
 
@@ -162,6 +164,7 @@ pub fn bridge_sensor_to_device(
                 integration_id,
                 scene,
                 state: kind,
+                capabilities: None,
             }
         }
     }

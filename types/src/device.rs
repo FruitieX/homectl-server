@@ -50,6 +50,12 @@ pub struct CorrelatedColonTemperature {
     cct: f32,
     device_range: Range<f32>,
 }
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+
+pub struct Capability {
+    pub cct: bool,
+    pub hsv: bool,
+}
 
 impl CorrelatedColonTemperature {
     pub fn new(cct: f32, device_range: Range<f32>) -> CorrelatedColonTemperature {
@@ -311,6 +317,14 @@ impl DeviceState {
             DeviceState::Sensor(_) => {}
         }
     }
+    pub fn set_brightness(&mut self, brightness: f32) {
+        match self {
+            DeviceState::OnOffDevice(_) => {}
+            DeviceState::Light(state) => state.brightness = Some(brightness),
+            DeviceState::MultiSourceLight(_) => {}
+            DeviceState::Sensor(_) => {}
+        }
+    }
 }
 
 /// active scene that's controlling the device state, if any
@@ -346,6 +360,7 @@ pub struct Device {
     pub integration_id: IntegrationId,
     pub scene: Option<DeviceSceneState>,
     pub state: DeviceState,
+    pub capabilities: Option<Capability>,
 }
 
 #[cfg(feature = "backend")]
@@ -357,6 +372,7 @@ impl From<DeviceRow> for Device {
             integration_id: row.integration_id.into(),
             scene: row.scene_id.map(SceneId::new).map(DeviceSceneState::new),
             state: row.state.0,
+            capabilities: None,
         }
     }
 }
@@ -367,6 +383,7 @@ impl Device {
         id: DeviceId,
         name: String,
         state: DeviceState,
+        capabilities: Option<Capability>,
     ) -> Device {
         Device {
             id,
@@ -374,6 +391,7 @@ impl Device {
             integration_id,
             scene: None,
             state,
+            capabilities,
         }
     }
 

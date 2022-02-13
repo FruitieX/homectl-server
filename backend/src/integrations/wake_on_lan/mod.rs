@@ -53,9 +53,10 @@ impl Integration for WakeOnLan {
             let device = Device {
                 id: DeviceId::new(&machine.id),
                 name: machine.id.clone(),
-                integration_id: self.id.clone(),
+                integration_id: __self.id.clone(),
                 scene: None,
                 state,
+                capabilities: None,
             };
 
             self.sender

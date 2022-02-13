@@ -4,8 +4,7 @@ use async_std::task;
 use async_std::{stream, task::JoinHandle};
 use async_trait::async_trait;
 use futures::StreamExt;
-use homectl_types::device::{CorrelatedColorTemperature, DeviceColor};
-use homectl_types::utils::{cct_to_rgb, xy_to_cct};
+use homectl_types::device::{CorrelatedColorTemperature, DeviceColor, Capability};
 use homectl_types::{
     device::{Device, DeviceId, DeviceState, Light},
     event::{Message, TxEventChannel},
@@ -59,6 +58,7 @@ fn default_device(device_id: DeviceId, name: String, integration_id: Integration
             color: None,
             transition_ms: None,
         }),
+        capabilities: None,
     }
 }
 
@@ -241,10 +241,10 @@ fn to_tuya_state(device: &Device, device_config: &TuyaDeviceConfig) -> Result<Tu
             power,
             transition_ms,
         }) => Ok(Light {
-            power: power.clone(),
-            brightness: brightness.clone(),
+            power: *power,
+            brightness: *brightness,
             color: color.clone(),
-            transition_ms: transition_ms.clone(),
+            transition_ms: *transition_ms,
         }),
         _ => Err(anyhow!("Unsupported device state")),
     }?;
@@ -486,6 +486,10 @@ async fn get_tuya_state(
             integration_id: integration_id.clone(),
             scene: None,
             state,
+            capabilities: Some(Capability {
+                cct: true,
+                hsv: true,
+            }),
         };
 
         Ok(device)

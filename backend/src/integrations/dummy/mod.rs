@@ -51,7 +51,13 @@ impl Integration for Dummy {
                 Some(DeviceColor::Color(device.init_state)),
                 None,
             ));
-            let device = Device::new(self.id.clone(), id.clone(), device.name.clone(), state);
+            let device = Device::new(
+                self.id.clone(),
+                id.clone(),
+                device.name.clone(),
+                state,
+                None,
+            );
             self.event_tx
                 .send(Message::IntegrationDeviceRefresh { device });
         }
