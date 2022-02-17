@@ -9,4 +9,3 @@ pub mod random;
 pub mod timer;
 pub mod tuya;
 pub mod wake_on_lan;
-pub mod ping;

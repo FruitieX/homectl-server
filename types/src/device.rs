@@ -317,14 +317,6 @@ impl DeviceState {
             DeviceState::Sensor(_) => {}
         }
     }
-    pub fn set_brightness(&mut self, brightness: f32) {
-        match self {
-            DeviceState::OnOffDevice(_) => {}
-            DeviceState::Light(state) => state.brightness = Some(brightness),
-            DeviceState::MultiSourceLight(_) => {}
-            DeviceState::Sensor(_) => {}
-        }
-    }
 }
 
 /// active scene that's controlling the device state, if any

@@ -1,4 +1,5 @@
-use crate::device::{CorrelatedColorTemperature, DeviceState, DeviceStateKey};
+use crate::device::{CorrelatedColorTemperature, DeviceState};
+use crate::device::DeviceStateKey;
 
 use super::{
     device::{DeviceColor, DeviceId},

@@ -22,17 +22,19 @@ pub struct DeviceModalProps<'a> {
 #[allow(non_snake_case)]
 pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
     let ws = use_ws_context(&cx);
-    let show_hsv =  if let Some(c) = &cx.props.device.capabilities {
+    let show_hsv = if let Some(c) = &cx.props.device.capabilities {
         c.hsv
     } else {
         false
     };
-        let show_cct =  if let Some(c) = &cx.props.device.capabilities {
+    let show_cct =  if let Some(c) = &cx.props.device.capabilities {
             c.cct
-        } else {
+    } else {
             false
-        };
+    };
     let (show_debug, _set_show_debug) = use_state(&cx, || false);
+    let (show_brightness,set_show_brightness) = use_state(&cx,|| show_hsv ||show_cct );
+
     //let (show_hsv, set_show_hsv) = use_state(&cx, c.hsv );
     // let toggle_debug = move |_: MouseEvent| {
     //     let mut show_debug = show_debug.modify();
@@ -130,22 +132,7 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
         }
     };
 
-    let set_brightness = {
-        let ws = ws.clone();
-        move |evt: FormEvent| {
-            let value: Option<f32> = evt.data.value.parse().ok();
 
-            if let Some(value) = value {
-                let mut device = cx.props.device.clone();
-                device.state.set_brightness(value);
-                device.scene = None;
-                ws.send_json(&WebSocketRequest::Message(Message::SetDeviceState {
-                    device,
-                    set_scene: true,
-                }))
-            }
-        }
-    };
     let set_brightness = {
         let ws = ws.clone();
         move |evt: FormEvent| {
@@ -233,6 +220,8 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
                         value: "{saturation}",
                         onchange: set_saturation
                     }
+                })
+                show_brightness.then(|| rsx!{
 
                     "Brightness:",
                     style {
@@ -272,24 +261,6 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
                         step: "1",
                         value: "{cct}",
                         onchange: set_cct
-                    }
-                                       "Value:",
-                    style {
-                        ".value-slider::-webkit-slider-runnable-track {{
-                            background: linear-gradient(to right,  0%, 100%);
-                            border-radius: 0.5rem;
-                            height: 1rem;
-                            border: 1px solid #cccccc;
-                        }}"
-                    }
-                    input {
-                        class: "value-slider",
-                        r#type: "range",
-                        min: "0",
-                        max: "1",
-                        step: "0.01",
-                        value: "{value}",
-                        onchange: set_brightness
                     }
 
                 })
