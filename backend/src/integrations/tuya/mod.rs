@@ -495,8 +495,8 @@ async fn get_tuya_state(
             scene: None,
             state,
             capabilities: Some(Capability {
-                cct: true,
-                hsv: true,
+                cct: device_config.color_temp_field.is_some(),
+                hsv: device_config.color_field.is_some(),
             }),
         };
 

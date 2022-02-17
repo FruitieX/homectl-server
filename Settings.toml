@@ -1,0 +1,334 @@
+[integrations.hue1]
+plugin = "hue"
+addr = "192.168.1.145"
+poll_rate_lights = 10000
+poll_rate_sensors = 100
+# This can be obtained by pressing the link button on a Hue bridge
+# and within 30s running (replace IP with your Hue bridge IP):
+# curl -X POST 192.168.1.123/api -d '{"devicetype": "homectl#homectl"}'
+username = "0Cx9GG1Uldz68r225Z9nBQVepny58uANC4zg6VZm"
+
+#[integrations.lifx]
+#plugin = "lifx"
+
+[integrations.circadian]
+plugin = "circadian"
+device_name = "Circadian rhythm"
+day_color = { hue = 25, saturation = 0.35, value = 1 }
+day_fade_start = "06:00"
+day_fade_duration_hours = 4
+night_color = { hue = 17, saturation = 0.9, value = 0.5 }
+night_fade_start = "16:00"
+night_fade_duration_hours = 6
+
+
+[integrations.circadian_no_color]
+plugin = "circadian"
+device_name = "Circadian rhythm"
+day_color = { hue = 0, saturation = 0, value = 1 }
+day_fade_start = "06:00"
+day_fade_duration_hours = 4
+night_color = { hue = 0.37, saturation = 1.0, value = 0.225 }
+night_fade_start = "16:00"
+night_fade_duration_hours = 6
+
+
+[integrations.night_light_toggle]
+plugin = "boolean"
+device_name = "Night light toggle"
+init_value = false
+
+[integrations.hall_timer]
+plugin = "timer"
+device_name = "Hall timer"
+
+
+[integrations.test]
+plugin = "ping"
+machines = [{ id = "office_pc", ip = "192.168.1.1" }]
+
+[integrations.tuya]
+plugin = "tuya"
+
+[integrations.tuya.devices]
+# Find the device_id and local_key of your devices via https://iot.tuya.com.
+# Create an account, create a "Cloud Project" (Industry: Smart Home), link
+# your Tuya Smart app under the project's Devices tab and you should find your
+# device_id:s here. For each device, go to API Explorer call the Get Device
+# Information API with your device_id to retreive the device's local_key.
+
+# TODO: how to find out the field ID numbers? I had to fiddle around with
+# https://github.com/codetheweb/tuyapi, and log the results of device.get()
+
+bf57d4822ea564c34ctewk = { name = "testBulb", ip = "192.168.1.83", local_key = "13636ddbe981b366", power_on_field = "20", brightness_field = "22", color_temp_field = "23", color_mode_field = "21", color_mode_field_value = "colour" }
+# Define as many groups as you want.
+# These can be referred from [scenes.<scene_name>.groups] and groups can even
+# refer other groups
+# integration_id should equal the id given the integration,
+# which is "hue1" in this example settings ([integrations.hue1]).
+# The "name" property is the device name as used in the Hue app.
+
+[groups.bedroom_reading]
+name = "Bedroom reading"
+devices = [{ integration_id = "hue1", name = "Hue ambiance lamp 2" }]
+
+[groups.bedroom_spot]
+name = "Bedroom spot"
+devices = [
+  { integration_id = "hue1", name = "Hue color spot 1" },
+  { integration_id = "hue1", name = "Hue color spot 2" },
+  { integration_id = "hue1", name = "Hue color spot 3" },
+]
+
+[groups.bedroom]
+name = "Bedroom"
+groups = [{ group_id = "bedroom_reading" }, { group_id = "bedroom_spot" }]
+
+[groups.hall]
+name = "Hall"
+devices = [{ integration_id = "hue1", name = "Hue ambiance lamp 1" }]
+
+[groups.kitchen]
+name = "kitchen"
+devices = [{ integration_id = "hue1", name = "Kitchen ambiance lamp" }]
+
+[groups.livingroom]
+name = "livingroom"
+devices = [
+  { integration_id = "hue1", name = "Living room filament bulb 1" },
+  { integration_id = "hue1", name = "Living room filament bulb 2" },
+  { integration_id = "hue1", name = "Living room filament bulb 3" },
+  { integration_id = "hue1", name = "Living room filament bulb 4" },
+]
+
+
+# Example of group referring other groups
+[groups.all]
+name = "All lights"
+groups = [
+  { group_id = "bedroom" },
+  { group_id = "hall" },
+  { group_id = "kitchen" },
+  { group_id = "livingroom" },
+]
+
+# Define a couple scenes that can be triggered from routines Note that scenes
+# can "link" a device/group to another device, meaning the state should be
+# copied over from the target device. (see [scenes.office_on.groups])
+[scenes.all_off]
+name = "all off"
+[scenes.all_off.groups]
+all = { power = false }
+
+[scenes.bedroom_circadian]
+name = "bedroom circadian"
+[scenes.bedroom_circadian.groups]
+bedroom_reading = { integration_id = "circadian_no_color", device_id = "color" }
+bedroom_spot = { integration_id = "circadian", device_id = "color" }
+
+[scenes.bedroom_wake_up]
+name = "Bedroom spot circadian"
+[scenes.bedroom_wake_up.groups]
+bedroom_reading = { power = false }
+bedroom_spot = { power = true, color = { hue = 25, saturation = 0.35, value = 1 }, transition_ms = 100000 }
+
+
+[scenes.bedroom_reading_circadian]
+name = "bedroom cardian"
+[scenes.bedroom_reading_circadian.groups]
+bedroom_spot = { power = false }
+bedroom_reading = { integration_id = "circadian_no_color", device_id = "color" }
+
+[scenes.bedroom_spot_circadian]
+name = "Bedroom spot circadian"
+[scenes.bedroom_spot_circadian.groups]
+bedroom_reading = { power = false }
+bedroom_spot = { integration_id = "circadian", device_id = "color" }
+
+[scenes.bedroom_off]
+name = "Bedroom off"
+[scenes.bedroom_off.groups]
+bedroom = { power = false }
+
+[scenes.hall_circadian]
+name = "Hall circadian"
+[scenes.hall_circadian.groups]
+hall = { integration_id = "circadian_no_color", device_id = "color" }
+
+[scenes.hall_night]
+name = "Hall night"
+[scenes.hall_night.groups]
+hall = { power = true, color = { hue = 0, saturation = 1, value = 0.1 } }
+
+
+[scenes.hall_off]
+name = "hall off"
+[scenes.hall_off.groups]
+hall = { power = false }
+
+
+[scenes.kitchen_circadian]
+name = "kitchen on"
+[scenes.kitchen_circadian.groups]
+kitchen = { power = true, color = { hue = 0, saturation = 1, value = 1 } }
+#{power = true}, integration_id = "circadian_no_color", device_id = "color" }
+
+[scenes.kitchen_off]
+name = "Kitchen off"
+[scenes.kitchen_off.groups]
+kitchen = { power = false }
+#livingroom = { integration_id = "circadian", device_id = "color" }
+
+
+[scenes.livingroom_100]
+name = "Livingroom 100"
+[scenes.livingroom_100.groups]
+livingroom = { power = true, color = { hue = 0, saturation = 1, value = 1 } }
+
+[scenes.livingroom_10]
+name = "Livingroom 10"
+[scenes.livingroom_10.groups]
+livingroom = { power = true, color = { hue = 0, saturation = 1, value = 0.1 } }
+
+[scenes.livingroom_circadian]
+name = "Livingroom on"
+[scenes.livingroom_circadian.groups]
+livingroom = { power = true, integration_id = "circadian_no_color", device_id = "color" }
+
+
+[scenes.livingroom_off]
+name = "Livingroom off"
+[scenes.livingroom_off.groups]
+livingroom = { power = false }
+
+
+[routines.kitchen_circadian]
+name = "Kitchen circadian"
+rules = [
+  { integration_id = "hue1", name = "Kitchen remote", state = { on = true } },
+]
+
+actions = [{ action = "ActivateScene", scene_id = "kitchen_circadian" }]
+
+[routines.kitchen_off]
+name = "Livingroom off"
+rules = [
+  { integration_id = "hue1", name = "Kitchen remote", state = { off = true } },
+]
+actions = [{ action = "ActivateScene", scene_id = "kitchen_off" }]
+
+
+[routines.livingroom_circadian]
+name = "Livingroom circadian"
+rules = [
+  { integration_id = "hue1", name = "Livingroom remote", state = { on = true } },
+]
+actions = [{ action = "ActivateScene", scene_id = "livingroom_circadian" }]
+
+[routines.livingroom_100]
+name = "Livingroom 100"
+rules = [
+  { integration_id = "hue1", name = "Livingroom remote", state = { up = true } },
+]
+actions = [{ action = "ActivateScene", scene_id = "livingroom_100" }]
+
+[routines.livingroom_10]
+name = "Livingroom circadian"
+rules = [
+  { integration_id = "hue1", name = "Livingroom remote", state = { down = true } },
+]
+actions = [{ action = "ActivateScene", scene_id = "livingroom_10" }]
+
+
+[routines.livingroom_off]
+name = "Livingroom off"
+rules = [
+  { integration_id = "hue1", name = "Livingroom remote", state = { off = true } },
+]
+actions = [{ action = "ActivateScene", scene_id = "livingroom_off" }]
+
+[routines.bedroom]
+name = "Bedroom"
+rules = [
+  { integration_id = "hue1", name = "Bedroom remote", state = { on = true } },
+  { integration_id = "night_light_toggle", name = "Night light toggle", state = { value = false } },
+
+]
+actions = [
+  { action = "CycleScenes", scenes = [
+    { scene_id = "bedroom_spot_circadian" },
+    { scene_id = "bedroom_circadian" },
+    { scene_id = "bedroom_reading_circadian" },
+  ] },
+]
+
+[routines.bedroom_night_reading]
+name = "Bedroom night reading"
+rules = [
+  { integration_id = "hue1", name = "Bedroom remote", state = { on = true } },
+  { integration_id = "night_light_toggle", name = "Night light toggle", state = { value = true } },
+]
+actions = [{ action = "ActivateScene", scene_id = "bedroom_reading_circadian" }]
+
+
+[routines.bedroom_night_off]
+name = "Bedroom night off"
+rules = [
+  { integration_id = "hue1", name = "Bedroom remote", state = { on_long = true } },
+  { integration_id = "night_light_toggle", name = "Night light toggle", state = { value = true } },
+]
+actions = [
+  { action = "ActivateScene", scene_id = "bedroom_wake_up" },
+  { action = "IntegrationAction", integration_id = "night_light_toggle", payload = "false" },
+]
+
+
+[routines.bedroom_off]
+name = "Bedroom off"
+rules = [
+  { integration_id = "hue1", name = "Bedroom remote", state = { off = true } },
+]
+actions = [{ action = "ActivateScene", scene_id = "bedroom_off" }]
+
+[routines.hall]
+name = "hall"
+rules = [
+  { integration_id = "hue1", name = "Hue motion sensor 1", state = { value = true } },
+  { integration_id = "night_light_toggle", name = "Night light toggle", state = { value = false } },
+
+]
+actions = [
+  { action = "ActivateScene", scene_id = "hall_circadian" },
+  { action = "IntegrationAction", integration_id = "hall_timer", payload = "300000" },
+]
+
+[routines.hall_night]
+name = "hall"
+rules = [
+  { integration_id = "hue1", name = "Hue motion sensor 1", state = { value = true } },
+  { integration_id = "night_light_toggle", name = "Night light toggle", state = { value = true } },
+]
+actions = [
+  { action = "ActivateScene", scene_id = "hall_night" },
+  { action = "IntegrationAction", integration_id = "hall_timer", payload = "30000" },
+]
+
+
+[routines.hall_off]
+name = "hall_off"
+rules = [
+  { integration_id = "hue1", name = "Hue motion sensor 1", state = { value = false } },
+  { integration_id = "hall_timer", name = "Hall timer", state = { value = false } },
+]
+actions = [{ action = "ActivateScene", scene_id = "hall_off" }]
+
+[routines.night]
+name = "all off"
+rules = [
+  { integration_id = "hue1", name = "Bedroom remote", state = { off_long = true } },
+]
+actions = [
+  { action = "ActivateScene", scene_id = "all_off" },
+  { action = "ActivateScene", scene_id = "bedroom_reading_circadian" },
+  { action = "IntegrationAction", integration_id = "night_light_toggle", payload = "true" },
+]
