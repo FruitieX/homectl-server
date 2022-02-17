@@ -25,8 +25,22 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
     //     *show_debug = !*show_debug;
     // };
 
+    let show_hsv = match &cx.props.device.state{
+        homectl_types::device::DeviceState::Light(l) => match &l.capabilities {
+            Some(c) => c.Hsv,
+            None => false,
+        },
+        _ => false
+    };
+    let show_cct = match &cx.props.device.state{
+        homectl_types::device::DeviceState::Light(l) => match &l.capabilities {
+            Some(c) => c.Cct,
+            None => false,
+        },
+        _ => false
+    };
+    let (show_brightness, set_show_brightness) = use_state(&cx, || show_hsv || show_cct);
 
-    
     let brightness = cx.props.device.state.get_brightness().unwrap_or_default();
     let power = cx.props.device.state.is_powered_on().unwrap_or_default();
     let color = cx.props.device.state.get_color();
@@ -169,7 +183,7 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
 
                     "Color:",
                     ColorSwatch { color: color.map(scale_hsv_value_to_display) },
-
+                    show_hsv.then(||rsx! {
                     "Hue:",
                     style {
                         ".hue-slider::-webkit-slider-runnable-track {{
@@ -206,7 +220,8 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
                         value: "{saturation}",
                         onchange: set_saturation
                     }
-
+                    })
+                    show_brightness.then(||rsx!{
                     "Brightness:",
                     style {
                         ".brightness-slider::-webkit-slider-runnable-track {{
@@ -225,7 +240,8 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
                         value: "{brightness}",
                         onchange: set_brightness
                     }
-
+                })
+                show_cct.then(||rsx!{
                     "Color temperature:",
                     style {
                         ".cct-slider::-webkit-slider-runnable-track {{
@@ -244,8 +260,8 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
                         value: "{cct}",
                         onchange: set_cct
                     }
-                }
-
+                
+                })
                 show_debug.then(|| rsx! {
                     div {
                         class: "flex-1 overflow-auto min-h-[300px]",
@@ -257,7 +273,7 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
                         }
                     }
                 })
-            })
-        }
-    })
-}
+            }
+        })
+    }
+})}
