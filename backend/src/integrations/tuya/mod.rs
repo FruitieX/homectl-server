@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
-use homectl_types::device::{CorrelatedColorTemperature, DeviceColor};
+use futures::StreamExt;
+use homectl_types::device::{Capability, CorrelatedColorTemperature, DeviceColor};
 use homectl_types::utils::{cct_to_rgb, xy_to_cct};
 use homectl_types::{
     device::{Device, DeviceId, DeviceState, Light},
@@ -29,6 +30,8 @@ pub struct TuyaDeviceConfig {
     ip: String,
     power_on_field: String,
     brightness_field: Option<String>,
+    color_mode_field: Option<String>,
+    color_mode_field_value: Option<String>,
     color_field: Option<String>,
     color_temp_field: Option<String>,
 }
@@ -355,6 +358,12 @@ async fn set_tuya_state(device: &Device, device_config: &TuyaDeviceConfig) -> Re
         }
         if let (Some(field), Some(color)) = (device_config.color_field.clone(), tuya_state.color) {
             dps.insert(field, json!(color));
+            if let (Some(field), Some(value)) = (
+                device_config.color_mode_field.clone(),
+                device_config.color_mode_field_value.clone(),
+            ) {
+                dps.insert(field, json!(value));
+            }
         }
 
         // Create the payload to be sent, this will be serialized to the JSON format
@@ -368,7 +377,7 @@ async fn set_tuya_state(device: &Device, device_config: &TuyaDeviceConfig) -> Re
             dps: Some(dps),
         });
 
-        tokio::time::timeout(Duration::from_millis(250), tuya_device.set(payload, 0)).await??
+        tokio::time::timeout(Duration::from_millis(1000), tuya_device.set(payload, 0)).await??
     }
 
     Ok(())
