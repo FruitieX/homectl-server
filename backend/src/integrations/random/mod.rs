@@ -106,6 +106,7 @@ fn mk_random_device(random: &Random) -> Device {
         Some(1.0),
         Some(get_random_color()),
         Some(500),
+        None,
     ));
 
     Device {

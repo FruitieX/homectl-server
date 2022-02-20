@@ -46,6 +46,12 @@ pub enum DeviceColor {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct Capability {
+    pub Hsv: bool,
+    pub Cct: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct CorrelatedColorTemperature {
     cct: f32,
     device_range: Range<f32>,
@@ -96,6 +102,8 @@ pub struct Light {
 
     /// Transition time in milliseconds
     pub transition_ms: Option<u64>,
+
+    pub capabilities: Option<Capability>,
 }
 
 impl Light {
@@ -104,12 +112,14 @@ impl Light {
         brightness: Option<f32>,
         color: Option<DeviceColor>,
         transition_ms: Option<u64>,
+        capability: Option<Capability>,
     ) -> Light {
         Light {
             power,
             brightness,
             color,
             transition_ms,
+            capabilities: capability,
         }
     }
 }

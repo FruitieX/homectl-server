@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use byteorder::{ByteOrder, LittleEndian};
-use homectl_types::device::{Device, DeviceColor, DeviceId, DeviceState, Light};
+use homectl_types::device::{Capability, Device, DeviceColor, DeviceId, DeviceState, Light};
 use homectl_types::integration::IntegrationId;
 use palette::Hsv;
 use std::net::SocketAddr;
@@ -176,6 +176,10 @@ pub fn from_lifx_state(lifx_state: LifxState, integration_id: IntegrationId) -> 
         None,
         Some(DeviceColor::Color(color)),
         transition_ms,
+        Some(Capability {
+            Hsv: true,
+            Cct: false,
+        }),
     ));
 
     Device {
@@ -194,14 +198,22 @@ pub fn to_lifx_state(device: &Device) -> Result<LifxState> {
             color,
             power,
             transition_ms,
+            capabilities,
         }) => Ok(Light {
             power,
             brightness,
             color,
             transition_ms,
+            capabilities,
         }),
         _ => Err(anyhow!("Unsupported device state")),
     }?;
+
+    let power = if light_state.power { 65535 } else { 0 };
+    let transition = light_state
+        .transition_ms
+        .map(|transition_ms| transition_ms as u32);
+
     match light_state.color {
         Some(DeviceColor::Color(color)) => {
             let hue =
@@ -217,7 +229,7 @@ pub fn to_lifx_state(device: &Device) -> Result<LifxState> {
                 power,
                 label: device.name.clone(),
                 addr: device.id.to_string().parse()?,
-                transition,
+                transition
             })
         }
         Some(DeviceColor::Cct(_)) => Err(anyhow!(

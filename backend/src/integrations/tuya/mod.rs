@@ -60,6 +60,7 @@ fn default_device(device_id: DeviceId, name: String, integration_id: Integration
             brightness: None,
             color: None,
             transition_ms: None,
+            capabilities: None,
         }),
     }
 }
@@ -242,11 +243,13 @@ fn to_tuya_state(device: &Device, device_config: &TuyaDeviceConfig) -> Result<Tu
             color,
             power,
             transition_ms,
+            capabilities,
         }) => Ok(Light {
             power,
             brightness,
             color,
             transition_ms,
+            capabilities,
         }),
         _ => Err(anyhow!("Unsupported device state")),
     }?;
@@ -497,8 +500,18 @@ async fn get_tuya_state(
         } else {
             None
         };
-
-        let state = DeviceState::Light(Light::new(power, brightness, color, Some(1000)));
+        let capabilities = Capability {
+            Hsv: device_config.color_mode_field_value.is_some(),
+            Cct: device_config.color_temp_field.is_some(),
+        };
+        dbg!(&capabilities);
+        let state = DeviceState::Light(Light::new(
+            power,
+            brightness,
+            color,
+            Some(1000),
+            Some(capabilities),
+        ));
 
         let device = Device {
             id: device_id.clone(),

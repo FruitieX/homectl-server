@@ -50,6 +50,7 @@ impl Integration for Dummy {
                 Some(1.0),
                 Some(DeviceColor::Color(device.init_state)),
                 None,
+                None,
             ));
             let device = Device::new(self.id.clone(), id.clone(), device.name.clone(), state);
             self.event_tx

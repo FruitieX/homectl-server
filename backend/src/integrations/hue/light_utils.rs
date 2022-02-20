@@ -46,6 +46,7 @@ pub fn to_light(bridge_light: BridgeLight) -> Light {
         brightness,
         color,
         transition_ms,
+        capabilities: None,
     }
 }
 
