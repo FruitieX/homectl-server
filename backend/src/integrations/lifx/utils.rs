@@ -178,7 +178,7 @@ pub fn from_lifx_state(lifx_state: LifxState, integration_id: IntegrationId) -> 
         transition_ms,
         Some(Capability {
             Hsv: true,
-            Cct: false,
+            Cct: true,
         }),
     ));
 
@@ -229,7 +229,7 @@ pub fn to_lifx_state(device: &Device) -> Result<LifxState> {
                 power,
                 label: device.name.clone(),
                 addr: device.id.to_string().parse()?,
-                transition
+                transition,
             })
         }
         Some(DeviceColor::Cct(_)) => Err(anyhow!(
