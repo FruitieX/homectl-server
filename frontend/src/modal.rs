@@ -1,5 +1,5 @@
+use dioxus::fermi::use_set;
 use dioxus::{events::MouseEvent, prelude::*};
-use fermi::use_set;
 
 use crate::app_state::DISABLE_SCROLL_ATOM;
 

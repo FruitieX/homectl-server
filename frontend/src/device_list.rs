@@ -1,6 +1,6 @@
 use crate::{save_scene_modal::SaveSceneModal, tile::Tile, util::scale_hsv_value_to_display};
 use dioxus::prelude::*;
-use fermi::use_read;
+use dioxus::fermi::use_read;
 use homectl_types::device::{Device, DeviceKey};
 use itertools::Itertools;
 

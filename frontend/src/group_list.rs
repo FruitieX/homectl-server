@@ -1,6 +1,6 @@
+use dioxus::fermi::use_read;
 use dioxus::prelude::*;
 use dioxus_router::Link;
-use fermi::use_read;
 use homectl_types::group::{FlattenedGroupConfig, GroupId};
 use itertools::Itertools;
 use palette::Hsv;

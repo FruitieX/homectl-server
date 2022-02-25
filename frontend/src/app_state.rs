@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 use dioxus_websocket_hooks::use_ws_context_provider_json;
-use fermi::{use_init_atom_root, use_set, Atom};
+use dioxus::fermi::{use_init_atom_root, use_set, Atom};
 use homectl_types::{
     device::DevicesState, group::FlattenedGroupsConfig, scene::FlattenedScenesConfig,
     websockets::WebSocketResponse,

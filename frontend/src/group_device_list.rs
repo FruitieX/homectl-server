@@ -1,6 +1,6 @@
+use dioxus::fermi::use_read;
 use dioxus::prelude::*;
 use dioxus_router::use_route;
-use fermi::use_read;
 use homectl_types::group::GroupId;
 
 use crate::{app_state::GROUPS_ATOM, device_list::DeviceList, scene_list::SceneList};
@@ -13,7 +13,7 @@ pub fn GroupDeviceList(cx: Scope) -> Element {
     let (_, group) = groups
         .iter()
         .find(|(candidate_group_id, _)| *candidate_group_id == &group_id)?;
-    
+
     let name = &group.name;
 
     cx.render(rsx! {

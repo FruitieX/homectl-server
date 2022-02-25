@@ -135,7 +135,6 @@ pub async fn set_device_state(config: HueConfig, device: &Device) -> Result<(), 
                         transitiontime,
                     })
                 }
-                Some(_) => todo!(),
                 None => HueMsg::OnOffDeviceMsg(OnOffDeviceMsg {
                     on: state.power,
                     transitiontime,

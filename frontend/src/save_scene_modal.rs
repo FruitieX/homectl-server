@@ -8,7 +8,7 @@ use dioxus::{
     prelude::*,
 };
 use dioxus_websocket_hooks::use_ws_context;
-use fermi::{use_read, use_set};
+use dioxus::fermi::{use_read, use_set};
 use homectl_types::{
     device::{Device, DeviceKey},
     event::Message,

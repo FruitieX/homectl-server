@@ -1,6 +1,6 @@
+use dioxus::fermi::use_read;
 use dioxus::{events::MouseEvent, prelude::*};
 use dioxus_websocket_hooks::use_ws_context;
-use fermi::use_read;
 use homectl_types::{
     action::Action,
     device::DeviceKey,
