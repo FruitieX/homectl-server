@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
-use futures::StreamExt;
 use homectl_types::device::{Capability, CorrelatedColorTemperature, DeviceColor};
 use homectl_types::utils::{cct_to_rgb, xy_to_cct};
 use homectl_types::{
