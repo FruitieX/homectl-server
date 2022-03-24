@@ -2,9 +2,9 @@ use crate::{
     app_state::{DISABLE_SCROLL_ATOM, SCENES_ATOM},
     modal::Modal,
 };
+use dioxus::fermi::{use_read, use_set};
 use dioxus::{events::FormEvent, prelude::*};
 use dioxus_websocket_hooks::use_ws_context;
-use fermi::{use_read, use_set};
 use homectl_types::{event::Message, scene::SceneId, websockets::WebSocketRequest};
 
 #[derive(Props)]
@@ -99,7 +99,7 @@ pub fn EditSceneModal<'a>(cx: Scope<'a, EditSceneModalProps<'a>>) -> Element<'a>
                     } else {
                         rsx! {
                             button {
-                                class: "bg-slate-100", 
+                                class: "bg-slate-100",
                                 onclick: move |_| {set_confirm_delete_visible(true)},
 
                                 "Delete scene"

@@ -9,7 +9,7 @@ use crate::{
 use app_state::{use_init_app_state, DISABLE_SCROLL_ATOM};
 use dioxus::prelude::*;
 use dioxus_router::{Route, Router};
-use fermi::use_read;
+use dioxus::fermi::use_read;
 
 mod app_state;
 mod color_swatch;

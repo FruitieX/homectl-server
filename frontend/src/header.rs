@@ -1,6 +1,6 @@
+use dioxus::fermi::use_read;
 use dioxus::prelude::*;
 use dioxus_router::use_route;
-use fermi::use_read;
 use homectl_types::group::GroupId;
 use itertools::Itertools;
 
