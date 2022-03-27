@@ -39,7 +39,7 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
         },
         _ => false
     };
-    let (show_brightness, _set_show_brightness) = use_state(&cx, || show_hsv || show_cct);
+    let (show_brightness, _set_show_brightness) = use_state(&cx, || true);
 
     let brightness = cx.props.device.state.get_brightness().unwrap_or_default();
     let power = cx.props.device.state.is_powered_on().unwrap_or_default();
@@ -260,7 +260,7 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
                         value: "{cct}",
                         onchange: set_cct
                     }
-                
+
                 })
                 show_debug.then(|| rsx! {
                     div {
