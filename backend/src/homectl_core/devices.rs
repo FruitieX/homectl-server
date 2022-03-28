@@ -1,7 +1,7 @@
 use crate::db::actions::{db_find_device, db_update_device};
 
 use super::scenes::Scenes;
-use homectl_types::device::DeviceId;
+use homectl_types::device::{DeviceId, Light};
 use homectl_types::{
     device::{Device, DeviceColor, DeviceKey, DeviceSceneState, DeviceState, DevicesState},
     event::{Message, TxEventChannel},
@@ -130,70 +130,71 @@ impl Devices {
             .map(|d| self.get_expected_state(d, false));
 
         // Take action if the device state has changed from stored state
-        if Some(device) != state_device.as_ref() || expected_state != Some(device.state.clone()) {
-            let kind = device.state.clone();
+        if !(Some(device) != state_device.as_ref() || expected_state != Some(device.state.clone()))
+        {
+            return;
+        }
+        let kind = device.state.clone();
 
-            match (kind, state_device, expected_state) {
-                // Device was seen for the first time
-                (_, None, _) => {
-                    let db_device = db_find_device(&device.get_device_key()).await.ok();
+        match (kind, state_device, expected_state) {
+            // Device was seen for the first time
+            (_, None, _) => {
+                let db_device = db_find_device(&device.get_device_key()).await.ok();
 
-                    match db_device {
-                        Some(db_device) => {
-                            // Note that we only restore a device from DB once it has been
-                            // discovered by the integration. This way we don't end up with a lot
-                            // of possibly old/stale devices.
-                            println!("Restored device from DB: {:?}", device);
-                            let device = Device {
-                                // Don't restore name from DB as this prevents us from changing it
-                                name: device.name.clone(),
+                match db_device {
+                    Some(db_device) => {
+                        // Note that we only restore a device from DB once it has been
+                        // discovered by the integration. This way we don't end up with a lot
+                        // of possibly old/stale devices.
+                        println!("Restored device from DB: {:?}", device);
+                        let device = Device {
+                            // Don't restore name from DB as this prevents us from changing it
+                            name: device.name.clone(),
 
-                                ..db_device
-                            };
+                            ..db_device
+                        };
 
-                            self.set_device_state(&device, true, true, false).await;
-                        }
-                        None => {
-                            println!("Discovered device: {:?}", device);
-                            self.set_device_state(device, true, false, true).await;
-                            db_update_device(device).await.ok();
-                        }
+                        self.set_device_state(&device, true, true, false).await;
+                    }
+                    None => {
+                        println!("Discovered device: {:?}", device);
+                        self.set_device_state(device, true, false, true).await;
+                        db_update_device(device).await.ok();
                     }
                 }
+            }
 
-                // Sensor state has changed, defer handling of this update
-                // to other subsystems
-                (DeviceState::Sensor(_), Some(_), _) => {
-                    self.set_device_state(device, false, false, true).await;
+            // Sensor state has changed, defer handling of this update
+            // to other subsystems
+            (DeviceState::Sensor(_), Some(_), _) => {
+                self.set_device_state(device, false, false, true).await;
+            }
+
+            // Device state does not match expected state, maybe the
+            // device missed a state update or forgot its state? Try
+            // fixing this by emitting a SetIntegrationDeviceState
+            // message back to integration
+            (_, _, Some(expected_state)) => {
+                if cmp_device_states(&device.state, &expected_state) {
+                    return;
                 }
 
-                // Device state does not match expected state, maybe the
-                // device missed a state update or forgot its state? Try
-                // fixing this by emitting a SetIntegrationDeviceState
-                // message back to integration
-                (_, _, Some(expected_state)) => {
-                    if cmp_device_states(&device.state, &expected_state) {
-                        return;
-                    }
+                println!(
+                    "Device state mismatch detected ({}/{}): (was: {:?}, expected: {:?})",
+                    device.integration_id, device.id, device.state, expected_state
+                );
+                let mut device = device.clone();
+                device.state = expected_state;
 
-                    println!(
-                        "Device state mismatch detected ({}/{}): (was: {:?}, expected: {:?})",
-                        device.integration_id, device.id, device.state, expected_state
-                    );
+                self.sender.send(Message::SetIntegrationDeviceState {
+                    device,
+                    state_changed: true,
+                });
+            }
 
-                    let mut device = device.clone();
-                    device.state = expected_state;
-
-                    self.sender.send(Message::SetIntegrationDeviceState {
-                        device,
-                        state_changed: true,
-                    });
-                }
-
-                // Expected device state was not found
-                (_, _, None) => {
-                    self.set_device_state(device, false, false, true).await;
-                }
+            // Expected device state was not found
+            (_, _, None) => {
+                self.set_device_state(device, false, false, true).await;
             }
         }
     }

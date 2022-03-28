@@ -115,5 +115,6 @@ fn mk_random_device(random: &Random) -> Device {
         integration_id: random.id.clone(),
         scene: None,
         state,
+        capabilities: None,
     }
 }

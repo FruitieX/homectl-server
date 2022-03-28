@@ -102,8 +102,6 @@ pub struct Light {
 
     /// Transition time in milliseconds
     pub transition_ms: Option<u64>,
-
-    pub capabilities: Option<Capability>,
 }
 
 impl Light {
@@ -119,7 +117,6 @@ impl Light {
             brightness,
             color,
             transition_ms,
-            capabilities: capability,
         }
     }
 }
@@ -347,6 +344,7 @@ pub struct DeviceRow {
     pub integration_id: String,
     pub scene_id: Option<String>,
     pub state: sqlx::types::Json<DeviceState>,
+    // pub capabilities: Option<Capability>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -356,6 +354,7 @@ pub struct Device {
     pub integration_id: IntegrationId,
     pub scene: Option<DeviceSceneState>,
     pub state: DeviceState,
+    pub capabilities: Option<Capability>,
 }
 
 #[cfg(feature = "backend")]
@@ -367,6 +366,7 @@ impl From<DeviceRow> for Device {
             integration_id: row.integration_id.into(),
             scene: row.scene_id.map(SceneId::new).map(DeviceSceneState::new),
             state: row.state.0,
+            capabilities: None,
         }
     }
 }
@@ -384,6 +384,7 @@ impl Device {
             integration_id,
             scene: None,
             state,
+            capabilities: None,
         }
     }
 
