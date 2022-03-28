@@ -183,19 +183,20 @@ impl Devices {
                     "Device state mismatch detected ({}/{}): (was: {:?}, expected: {:?})",
                     device.integration_id, device.id, device.state, expected_state
                 );
-
                 let mut device = device.clone();
-                match (device.state, expected_state.clone()) {
-                    (DeviceState::Light(device_state), DeviceState::Light(expected_s)) => {
-                        device.state = DeviceState::Light(Light {
-                            power: expected_s.power,
-                            brightness: expected_s.brightness,
-                            color: expected_s.color,
-                            transition_ms: expected_s.transition_ms,
-                            capabilities: device_state.capabilities,
-                        });
-                    }
-                    (_, _) => device.state = expected_state,
+                if let (DeviceState::Light(device_state), DeviceState::Light(expected_s)) =
+                    (device.state, expected_state.clone())
+                {
+                    println!("found a lite");
+                    device.state = DeviceState::Light(Light {
+                        power: expected_s.power,
+                        brightness: expected_s.brightness,
+                        color: expected_s.color,
+                        transition_ms: expected_s.transition_ms,
+                        capabilities: device_state.capabilities,
+                    });
+                } else {
+                    device.state = expected_state
                 }
 
                 self.sender.send(Message::SetIntegrationDeviceState {
