@@ -551,8 +551,8 @@ pub async fn poll_light(
 
         if let Err(e) = result {
             eprintln!(
-                "Error while polling Tuya state for device {}: {:?}",
-                device_expected_state.name, e
+                "Error while polling Tuya state for device {:?}: {:?}",
+                device_expected_state, e
             );
         }
 
