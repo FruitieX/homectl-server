@@ -184,21 +184,17 @@ impl Devices {
                     device.integration_id, device.id, device.state, expected_state
                 );
                 let mut device = device.clone();
-                if let (DeviceState::Light(device_state), DeviceState::Light(expected_s)) =
-                    (device.state, expected_state.clone())
-                {
-                    println!("found a lite");
-                    device.state = DeviceState::Light(Light {
-                        power: expected_s.power,
-                        brightness: expected_s.brightness,
-                        color: expected_s.color,
-                        transition_ms: expected_s.transition_ms,
-                        capabilities: device_state.capabilities,
-                    });
-                } else {
-                    device.state = expected_state
-                }
-
+                device.state =
+                    if let (DeviceState::Light(device_state), DeviceState::Light(expected_state)) =
+                        (device.state.clone(), expected_state.clone())
+                    {
+                        let mut new_state: Light = expected_state;
+                        new_state.capabilities = device_state.capabilities;
+                        DeviceState::Light(new_state)
+                    } else {
+                        expected_state
+                    };
+                self.set_device_state(&device, false, false, true).await;
                 self.sender.send(Message::SetIntegrationDeviceState {
                     device,
                     state_changed: true,
