@@ -1,6 +1,6 @@
 use super::bridge::{BridgeLight, ColorMode};
 
-use homectl_types::device::Capability;
+
 use homectl_types::{
     device::{CorrelatedColorTemperature, Device, DeviceColor, DeviceId, DeviceState, Light},
     integration::IntegrationId,
@@ -47,10 +47,6 @@ pub fn to_light(bridge_light: BridgeLight) -> Light {
         brightness,
         color,
         transition_ms,
-        capabilities: Some(Capability {
-            Cct: ct.is_some(),
-            Hsv: hue.is_some(),
-        }),
     }
 }
 
@@ -69,5 +65,6 @@ pub fn bridge_light_to_device(
         integration_id,
         scene: None,
         state,
+        capabilities: None,
     }
 }

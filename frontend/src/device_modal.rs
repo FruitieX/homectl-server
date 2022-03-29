@@ -1,6 +1,7 @@
 use dioxus::{events::FormEvent, prelude::*};
 use dioxus_websocket_hooks::use_ws_context;
 use homectl_types::{device::Device, event::Message, websockets::WebSocketRequest};
+use palette::ConvertInto;
 
 use crate::{
     color_swatch::ColorSwatch,
@@ -25,20 +26,16 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
     //     *show_debug = !*show_debug;
     // };
 
-    let show_hsv = match &cx.props.device.state{
-        homectl_types::device::DeviceState::Light(l) => match &l.capabilities {
-            Some(c) => c.Hsv,
-            None => false,
-        },
-        _ => false
+    let show_hsv = match &cx.props.device.capabilities {
+        Some(c) => c.Hsv,
+        None => false,
     };
-    let show_cct = match &cx.props.device.state{
-        homectl_types::device::DeviceState::Light(l) => match &l.capabilities {
-            Some(c) => c.Cct,
-            None => false,
-        },
-        _ => false
+
+    let show_cct = match &cx.props.device.capabilities {
+        Some(c) => c.Cct,
+        None => false,
     };
+
     let (show_brightness, _set_show_brightness) = use_state(&cx, || true);
 
     let brightness = cx.props.device.state.get_brightness().unwrap_or_default();
@@ -276,4 +273,5 @@ pub fn DeviceModal<'a>(cx: Scope<'a, DeviceModalProps<'a>>) -> Element<'a> {
             }
         })
     }
-})}
+})
+}

@@ -48,7 +48,12 @@ pub struct Tuya {
     device_poll_handles: HashMap<DeviceId, JoinHandle<()>>,
 }
 
-fn default_device(device_id: DeviceId, name: String, integration_id: IntegrationId) -> Device {
+fn default_device(
+    device_id: DeviceId,
+    name: String,
+    integration_id: IntegrationId,
+    capabilities: Option<Capability>,
+) -> Device {
     Device {
         id: device_id,
         name,
@@ -59,8 +64,8 @@ fn default_device(device_id: DeviceId, name: String, integration_id: Integration
             brightness: None,
             color: None,
             transition_ms: None,
-            capabilities: None,
         }),
+        capabilities,
     }
 }
 
@@ -91,13 +96,17 @@ impl Integration for Tuya {
             let device_config = device_config.clone();
             let event_tx = self.event_tx.clone();
             let integration_id = integration_id.clone();
+            let capabilities = Some(Capability {
+                Hsv: device_config.color_field.is_some(),
+                Cct: device_config.color_temp_field.is_some(),
+            });
 
             println!("Getting initial state of {}", device_config.name);
             let device = get_tuya_state(&device_id, &integration_id, &device_config).await;
             let device = device.unwrap_or_else(|_| {
                 println!("Failed to get initial state of Tuya device {}, creating Device with default state", device_config.name);
 
-                default_device(device_id.clone(), device_config.name.clone(), integration_id)
+                default_device(device_id.clone(), device_config.name.clone(), integration_id,capabilities)
             });
 
             device_expected_states.insert(device_id.clone(), Arc::new(RwLock::new(device.clone())));
@@ -242,13 +251,11 @@ fn to_tuya_state(device: &Device, device_config: &TuyaDeviceConfig) -> Result<Tu
             color,
             power,
             transition_ms,
-            capabilities,
         }) => Ok(Light {
             power,
             brightness,
             color,
             transition_ms,
-            capabilities,
         }),
         _ => Err(anyhow!("Unsupported device state")),
     }?;
@@ -517,6 +524,7 @@ async fn get_tuya_state(
             integration_id: integration_id.clone(),
             scene: None,
             state,
+            capabilities: None,
         };
 
         Ok(device)
@@ -540,13 +548,6 @@ pub async fn poll_light(
             Cct: device_config.color_temp_field.is_some(),
         };
         let mut device_expected_state = { device_expected_state.read().await.clone() };
-        if let DeviceState::Light(s) = device_expected_state.state {
-            let s = DeviceState::Light(Light {
-                capabilities: Some(capabilities),
-                ..s
-            });
-            device_expected_state.state = s;
-        };
         let result = set_tuya_state(&device_expected_state, device_config).await;
 
         if let Err(e) = result {

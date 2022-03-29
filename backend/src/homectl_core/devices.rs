@@ -184,17 +184,8 @@ impl Devices {
                     device.integration_id, device.id, device.state, expected_state
                 );
                 let mut device = device.clone();
-                device.state =
-                    if let (DeviceState::Light(device_state), DeviceState::Light(expected_state)) =
-                        (device.state.clone(), expected_state.clone())
-                    {
-                        let mut new_state: Light = expected_state;
-                        new_state.capabilities = device_state.capabilities;
-                        DeviceState::Light(new_state)
-                    } else {
-                        expected_state
-                    };
-                self.set_device_state(&device, false, false, true).await;
+                device.state = expected_state;
+
                 self.sender.send(Message::SetIntegrationDeviceState {
                     device,
                     state_changed: true,

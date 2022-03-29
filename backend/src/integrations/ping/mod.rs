@@ -55,6 +55,7 @@ impl Integration for Ping {
                 integration_id: self.id.clone(),
                 state,
                 scene: None,
+                capabilities: None,
             };
             self.sender
                 .send(Message::IntegrationDeviceRefresh { device });
@@ -102,6 +103,7 @@ fn update_state(machine: &PingMachine, id: &IntegrationId, state_b: bool, sender
         integration_id: id.clone(),
         state,
         scene: None,
+        capabilities: None,
     };
     sender.send(Message::IntegrationDeviceRefresh { device });
 }

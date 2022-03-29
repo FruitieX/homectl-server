@@ -8,7 +8,7 @@ use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
 use bridge::BridgeState;
 use homectl_types::{
-    device::Device,
+    device::{Capability, Device},
     event::{Message, TxEventChannel},
     integration::{Integration, IntegrationActionPayload, IntegrationId},
 };
@@ -69,7 +69,12 @@ impl Integration for Hue {
         self.bridge_state = Some(bridge_state.clone());
 
         for (id, bridge_light) in bridge_state.lights {
-            let device = bridge_light_to_device(id, self.id.clone(), bridge_light);
+            let capabilities = Capability {
+                Hsv: bridge_light.state.hue.is_some(),
+                Cct: bridge_light.state.ct.is_some(),
+            };
+            let mut device = bridge_light_to_device(id, self.id.clone(), bridge_light);
+            device.capabilities = Some(capabilities);
             self.event_tx
                 .send(Message::IntegrationDeviceRefresh { device });
         }
