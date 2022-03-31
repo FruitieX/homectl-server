@@ -1,6 +1,6 @@
 use super::get_db_connection;
 use anyhow::Result;
-use homectl_types::device::{Device, DeviceRow, DeviceState, DeviceKey};
+use homectl_types::device::{Device, DeviceKey, DeviceRow, DeviceState};
 use homectl_types::integration::IntegrationId;
 use homectl_types::scene::ScenesConfig;
 use homectl_types::scene::{SceneConfig, SceneId};
@@ -37,9 +37,9 @@ pub async fn db_update_device(device: &Device) -> Result<Device> {
     .fetch_one(db)
     .await?;
 
-    let device = row.into();
-
-    Ok(device)
+    let mut device_db: Device = row.into();
+    device_db.capabilities = device.capabilities.clone();
+    Ok(device_db)
 }
 
 pub async fn db_find_device(key: &DeviceKey) -> Result<Device> {

@@ -1,7 +1,7 @@
 use crate::db::actions::{db_find_device, db_update_device};
 
 use super::scenes::Scenes;
-use homectl_types::device::{DeviceId, Light};
+use homectl_types::device::DeviceId;
 use homectl_types::{
     device::{Device, DeviceColor, DeviceKey, DeviceSceneState, DeviceState, DevicesState},
     event::{Message, TxEventChannel},
@@ -122,7 +122,7 @@ impl Devices {
     pub async fn handle_integration_device_refresh(&mut self, device: &Device) {
         // println!("handle_integration_device_refresh {:?}", device);
         let state_device = self.get_device(&device.get_device_key());
-
+        println!("{:?}", device);
         // recompute expected_state here as it may have changed since we last
         // computed it
         let expected_state = state_device
@@ -150,6 +150,7 @@ impl Devices {
                         let device = Device {
                             // Don't restore name from DB as this prevents us from changing it
                             name: device.name.clone(),
+                            capabilities: device.capabilities.clone(),
 
                             ..db_device
                         };

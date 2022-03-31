@@ -176,10 +176,6 @@ pub fn from_lifx_state(lifx_state: LifxState, integration_id: IntegrationId) -> 
         None,
         Some(DeviceColor::Color(color)),
         transition_ms,
-        Some(Capability {
-            Hsv: true,
-            Cct: true,
-        }),
     ));
 
     Device {
