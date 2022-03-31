@@ -110,7 +110,6 @@ impl Light {
         brightness: Option<f32>,
         color: Option<DeviceColor>,
         transition_ms: Option<u64>,
-        capability: Option<Capability>,
     ) -> Light {
         Light {
             power,
@@ -377,6 +376,7 @@ impl Device {
         id: DeviceId,
         name: String,
         state: DeviceState,
+        capabilities: Option<Capability>,
     ) -> Device {
         Device {
             id,
@@ -384,7 +384,7 @@ impl Device {
             integration_id,
             scene: None,
             state,
-            capabilities: None,
+            capabilities,
         }
     }
 

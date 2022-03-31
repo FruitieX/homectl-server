@@ -1,8 +1,9 @@
 use super::bridge::{BridgeLight, ColorMode};
 
-
 use homectl_types::{
-    device::{CorrelatedColorTemperature, Device, DeviceColor, DeviceId, DeviceState, Light},
+    device::{
+        Capability, CorrelatedColorTemperature, Device, DeviceColor, DeviceId, DeviceState, Light,
+    },
     integration::IntegrationId,
 };
 use palette::{Hsv, Yxy};
@@ -57,7 +58,7 @@ pub fn bridge_light_to_device(
     bridge_light: BridgeLight,
 ) -> Device {
     let name = bridge_light.name.clone();
-    let state = DeviceState::Light(to_light(bridge_light));
+    let state = DeviceState::Light(to_light(bridge_light.clone()));
 
     Device {
         id: DeviceId::new(&format!("lights/{}", id)),

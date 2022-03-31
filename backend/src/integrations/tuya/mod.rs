@@ -510,13 +510,7 @@ async fn get_tuya_state(
             Hsv: device_config.color_mode_field_value.is_some(),
             Cct: device_config.color_temp_field.is_some(),
         };
-        let state = DeviceState::Light(Light::new(
-            power,
-            brightness,
-            color,
-            Some(1000),
-            Some(capabilities),
-        ));
+        let state = DeviceState::Light(Light::new(power, brightness, color, Some(1000)));
 
         let device = Device {
             id: device_id.clone(),
@@ -524,7 +518,7 @@ async fn get_tuya_state(
             integration_id: integration_id.clone(),
             scene: None,
             state,
-            capabilities: None,
+            capabilities: Some(capabilities),
         };
 
         Ok(device)
@@ -543,11 +537,7 @@ pub async fn poll_light(
 
     loop {
         interval.tick().await;
-        let capabilities = Capability {
-            Hsv: device_config.color_mode_field_value.is_some(),
-            Cct: device_config.color_temp_field.is_some(),
-        };
-        let mut device_expected_state = { device_expected_state.read().await.clone() };
+        let device_expected_state = { device_expected_state.read().await.clone() };
         let result = set_tuya_state(&device_expected_state, device_config).await;
 
         if let Err(e) = result {
