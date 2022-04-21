@@ -58,14 +58,17 @@ pub fn bridge_light_to_device(
     bridge_light: BridgeLight,
 ) -> Device {
     let name = bridge_light.name.clone();
-    let state = DeviceState::Light(to_light(bridge_light));
-
+    let state = DeviceState::Light(to_light(bridge_light.clone()));
+    let capabilities = Capability {
+        Hsv: bridge_light.state.hue.is_some(),
+        Cct: bridge_light.state.ct.is_some(),
+    };
     Device {
         id: DeviceId::new(&format!("lights/{}", id)),
         name,
         integration_id,
         scene: None,
         state,
-        capabilities: None,
+        capabilities: Some(capabilities),
     }
 }

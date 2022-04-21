@@ -81,24 +81,10 @@ impl Integration for Hue {
 
         for (id, bridge_sensor) in bridge_state.sensors {
             let device = bridge_sensor_to_device(id, self.id.clone(), bridge_sensor);
-            self.event_tx.send(Message::IntegrationDeviceRefresh {
-                device: device.clone(),
-            });
-
-            let mut device_color = device.clone();
-            device_color.state.set_hue(0.5);
-            let mut device_temp = device.clone();
-            device_temp.state.set_cct(0.5);
-            self.event_tx.send(Message::SetDeviceState {
-                device: device_color,
-                set_scene: true,
-            });
-
-            self.event_tx.send(Message::SetDeviceState {
-                device: device_temp,
-                set_scene: true,
-            });
+            self.event_tx
+                .send(Message::IntegrationDeviceRefresh { device });
         }
+
         println!("registered hue integration");
 
         Ok(())
@@ -129,6 +115,7 @@ impl Integration for Hue {
 
             tokio::spawn(async { poll_lights(config, integration_id, sender).await });
         }
+
 
         Ok(())
     }
