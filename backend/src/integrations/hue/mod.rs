@@ -71,9 +71,7 @@ impl Integration for Hue {
         for (id, bridge_light) in bridge_state.lights {
             let capabilities = Capability {
                 Hsv: bridge_light.state.hue.is_some(),
-            // Let's assume that all hue lights are color temperature controllable
-                Cct: true,
-            
+                Cct: bridge_light.state.ct.is_some(),
             };
             let mut device = bridge_light_to_device(id, self.id.clone(), bridge_light);
             device.capabilities = Some(capabilities);
@@ -83,10 +81,24 @@ impl Integration for Hue {
 
         for (id, bridge_sensor) in bridge_state.sensors {
             let device = bridge_sensor_to_device(id, self.id.clone(), bridge_sensor);
-            self.event_tx
-                .send(Message::IntegrationDeviceRefresh { device });
-        }
+            self.event_tx.send(Message::IntegrationDeviceRefresh {
+                device: device.clone(),
+            });
 
+            let mut device_color = device.clone();
+            device_color.state.set_hue(0.5);
+            let mut device_temp = device.clone();
+            device_temp.state.set_cct(0.5);
+            self.event_tx.send(Message::SetDeviceState {
+                device: device_color,
+                set_scene: true,
+            });
+
+            self.event_tx.send(Message::SetDeviceState {
+                device: device_temp,
+                set_scene: true,
+            });
+        }
         println!("registered hue integration");
 
         Ok(())
