@@ -71,7 +71,9 @@ impl Integration for Hue {
         for (id, bridge_light) in bridge_state.lights {
             let capabilities = Capability {
                 Hsv: bridge_light.state.hue.is_some(),
-                Cct: bridge_light.state.ct.is_some(),
+            // Let's assume that all hue lights are color temperature controllable
+                Cct: true,
+            
             };
             let mut device = bridge_light_to_device(id, self.id.clone(), bridge_light);
             device.capabilities = Some(capabilities);

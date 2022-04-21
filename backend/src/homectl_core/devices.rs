@@ -151,7 +151,6 @@ impl Devices {
                             // Don't restore name from DB as this prevents us from changing it
                             name: device.name.clone(),
                             capabilities: device.capabilities.clone(),
-
                             ..db_device
                         };
 
