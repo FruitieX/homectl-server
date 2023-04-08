@@ -2,6 +2,7 @@
 
 members = [
   "backend",
+  "frontend",
   "types",
   "console",
 ]
