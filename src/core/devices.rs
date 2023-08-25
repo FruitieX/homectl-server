@@ -1,3 +1,4 @@
+// use crate::core::groups::Groups;
 use crate::db::actions::{db_find_device, db_update_device};
 use crate::types::color::{Capabilities, DeviceColor};
 
@@ -392,8 +393,16 @@ impl Devices {
 
         for device in devices.0.iter_mut() {
             let mut d = device.1.clone();
+            // let device_key = &DeviceKey::new(d.integration_id.clone(), d.id.clone());
+
+            // // Skip this device if it's not in device_keys
+            // if let Some(device_keys) = &_device_keys {
+            //     if !device_keys.contains(device_key) {
+            //         continue;
+            //     }
+            // }
             d = d.dim_device(step.unwrap_or(0.1));
-            d = d.set_scene(Some(SceneId::new("dimmed".to_string())));
+            d = d.set_scene(None);
             self.set_device_state(&d, true, false).await;
         }
 

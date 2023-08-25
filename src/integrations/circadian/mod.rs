@@ -169,6 +169,7 @@ fn mk_circadian_device(circadian: &Circadian) -> Device {
         color: Some(get_circadian_color(circadian)),
         brightness: get_circadian_brightness(circadian),
         transition_ms: Some(POLL_RATE),
+        action: None,
     }));
 
     Device {

@@ -90,6 +90,7 @@ fn mk_random_device(random: &Random) -> Device {
         color: Some(get_random_color()),
         brightness: Some(1.0),
         transition_ms: Some(1000),
+        action: None,
     }));
 
     Device {

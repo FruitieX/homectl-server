@@ -59,6 +59,7 @@ impl CustomIntegration for WakeOnLan {
                 None,
                 None,
                 Capabilities::default(),
+                None,
             ));
 
             let device = Device {

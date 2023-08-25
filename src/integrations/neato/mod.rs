@@ -1,9 +1,9 @@
-use crate::types::{
+use crate::{types::{
     custom_integration::CustomIntegration,
-    device::Device,
-    event::TxEventChannel,
-    integration::{IntegrationActionPayload, IntegrationId},
-};
+    device::{Device, DeviceData, SensorDevice, DeviceId, ManagedDevice, ManagedDeviceState},
+    event::{Message, TxEventChannel},
+    integration::{IntegrationActionPayload, IntegrationId}, color::Capabilities,
+}, integrations::neato::api::debug_robot_states};
 use crate::{
     db::actions::{db_get_neato_last_run, db_set_neato_last_run},
     utils::from_hh_mm,
@@ -18,7 +18,7 @@ mod api;
 
 use api::clean_house;
 
-use self::api::RobotCmd;
+use self::api::{Robot, RobotCmd, get_robots, update_robot_states};
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct NeatoConfig {
@@ -73,10 +73,28 @@ impl CustomIntegration for Neato {
             self.prev_run = Some(prev_run);
         }
 
+        // let device = mk_neato_device(&self.id, &self.config, false);
+        // let robots = get_robots(&self.config).await?;
+
+        // for robot in robots {
+        //     debug!("Found robot: {:?}", robot.name);
+        // }
+        // self.event_tx.send(Message::RecvDeviceState { device });
+
         Ok(())
     }
 
     async fn start(&mut self) -> color_eyre::Result<()> {
+        let robots = update_robot_states(get_robots(&self.config).await?).await?;
+
+        for robot in robots {
+            let r = robot.clone();
+            debug!("Found robot: {:?}", robot.name);
+            debug!("Robot state: {:?}", robot.state);
+            // debug_robot_states(robot).await?;
+            let device = mk_neato_device(self, &r);
+            debug!("Device: {:?}", device);
+        }
         Ok(())
     }
 
@@ -132,5 +150,34 @@ impl CustomIntegration for Neato {
             "stop_cleaning" => clean_house(&self.config, &RobotCmd::StopCleaning).await,
             _ => Ok(()),
         }
+    }
+}
+
+
+fn mk_neato_device(config: &Neato, robot: &Robot) -> Device {
+    let r_state = robot.state.as_ref().unwrap();
+    let r_state_string = format!("{}_{}", r_state.state, r_state.action);
+    let state = DeviceData::Managed(ManagedDevice {
+        scene: None,
+        capabilities: Capabilities {
+            xy: false,
+            hs: false,
+            rgb: false,
+            ct: None,
+        },
+        state: ManagedDeviceState {
+            brightness: None,
+            power: true,
+            color: None,
+            transition_ms: None,
+            action: Some(r_state_string),
+        }
+    });
+
+    Device {
+        id: DeviceId::new("color"),
+        name: robot.name.clone(),
+        integration_id: config.integration_id.clone(),
+        data: state,
     }
 }

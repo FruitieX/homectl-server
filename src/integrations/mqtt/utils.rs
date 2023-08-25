@@ -97,6 +97,7 @@ pub fn mqtt_to_homectl(
             color,
             transition_ms,
             capabilities,
+            None,
         ))
     };
 
@@ -175,6 +176,7 @@ mod tests {
                 Some(DeviceColor::Hs(Hs { h: 45, s: 1.0 })),
                 Some(1000),
                 Capabilities::default(),
+                None,
             )),
         };
 
@@ -253,6 +255,7 @@ mod tests {
                 Some(DeviceColor::Hs(Hs { h: 45, s: 1.0 })),
                 Some(1000),
                 Capabilities::singleton(ColorMode::Hs),
+                None,
             )),
         };
 

@@ -48,6 +48,8 @@ pub struct ManagedDeviceState {
 
     /// Transition time in milliseconds
     pub transition_ms: Option<u64>,
+
+    pub action: Option<String>,
 }
 
 impl Display for ManagedDeviceState {
@@ -114,6 +116,7 @@ impl ManagedDevice {
         color: Option<DeviceColor>,
         transition_ms: Option<u64>,
         capabilities: Capabilities,
+        action: Option<String>,
     ) -> ManagedDevice {
         ManagedDevice {
             scene,
@@ -122,6 +125,7 @@ impl ManagedDevice {
                 brightness,
                 color,
                 transition_ms,
+                action,
             },
             capabilities,
         }

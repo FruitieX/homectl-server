@@ -101,6 +101,7 @@ pub fn eval_scene_device_state(
                     color: scene_device.color.clone(),
                     power: scene_device.power.unwrap_or(true),
                     transition_ms: scene_device.transition_ms,
+                    action: None,
                 },
             )
         }

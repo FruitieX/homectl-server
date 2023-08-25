@@ -58,6 +58,7 @@ impl CustomIntegration for Dummy {
                         None,
                         None,
                         Capabilities::default(),
+                        None,
                     )));
 
             let device = Device::new(self.id.clone(), id.clone(), device.name.clone(), state);
