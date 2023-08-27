@@ -13,6 +13,8 @@ use chrono::{Datelike, Weekday};
 use color_eyre::Result;
 use eyre::Context;
 use serde::Deserialize;
+use std::time::Duration;
+use tokio::time;
 
 mod api;
 
@@ -40,6 +42,7 @@ pub struct NeatoConfig {
     dummy: bool,
 }
 
+#[derive(Clone)]
 pub struct Neato {
     integration_id: IntegrationId,
 
@@ -88,6 +91,7 @@ impl CustomIntegration for Neato {
     }
 
     async fn start(&mut self) -> color_eyre::Result<()> {
+        let neato = self.clone();
         let robots = update_robot_states(get_robots(&self.config).await?).await?;
 
         for robot in robots {
@@ -99,6 +103,7 @@ impl CustomIntegration for Neato {
             debug!("Device: {:?}", device);
             self.event_tx.send(Message::RecvDeviceState { device })
         }
+        tokio::spawn(async { poll_robots(neato).await });
         Ok(())
     }
 
@@ -149,6 +154,20 @@ impl CustomIntegration for Neato {
                     .await
                     .ok();
 
+                let event_tx = self.event_tx.clone();
+
+                let robots = update_robot_states(get_robots(&self.config).await?).await?;
+        
+                for robot in robots {
+                    let r = robot.clone();
+                    let device = mk_neato_device(self, &r);
+                    debug!("Neato: {:?}", device);
+                    event_tx.send(Message::SetExpectedState {
+                        device,
+                        set_scene: false,
+                    });
+                }
+
                 result
             }
             "stop_cleaning" => clean_house(&self.config, &RobotCmd::StopCleaning).await,
@@ -168,5 +187,31 @@ fn mk_neato_device(config: &Neato, robot: &Robot) -> Device {
         name: robot.name.clone(),
         integration_id: config.integration_id.clone(),
         data: state,
+    }
+}
+
+static POLL_RATE: u64 = 60 * 1000;
+
+async fn poll_robots(neato: Neato) -> Result<()> {
+    let poll_rate = Duration::from_millis(POLL_RATE);
+    let mut interval = time::interval(poll_rate);
+
+    loop {
+        interval.tick().await;
+
+        let event_tx = neato.event_tx.clone();
+
+        let robots = update_robot_states(get_robots(&neato.config).await?).await?;
+
+        for robot in robots {
+            let r = robot.clone();
+            // debug_robot_states(robot).await?;
+            let device = mk_neato_device(&neato, &r);
+            debug!("Neato: {:?}", device);
+            event_tx.send(Message::SetExpectedState {
+                device,
+                set_scene: false,
+            });
+        }
     }
 }
