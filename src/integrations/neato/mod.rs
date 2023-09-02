@@ -1,9 +1,9 @@
-use crate::{types::{
+use crate::types::{
     custom_integration::CustomIntegration,
-    device::{Device, DeviceData, SensorDevice, DeviceId, ManagedDevice, ManagedDeviceState},
+    device::{Device, DeviceData, SensorDevice, DeviceId},
     event::{Message, TxEventChannel},
-    integration::{IntegrationActionPayload, IntegrationId}, color::Capabilities,
-}, integrations::neato::api::debug_robot_states};
+    integration::{IntegrationActionPayload, IntegrationId},
+};
 use crate::{
     db::actions::{db_get_neato_last_run, db_set_neato_last_run},
     utils::from_hh_mm,
@@ -18,9 +18,7 @@ use tokio::time;
 
 mod api;
 
-use api::clean_house;
-
-use self::api::{Robot, RobotCmd, get_robots, update_robot_states};
+use self::api::{Robot, RobotCmd, get_robots, update_robot_states, RobotState, run_actions};
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct NeatoConfig {
@@ -68,7 +66,7 @@ impl CustomIntegration for Neato {
             integration_id: integration_id.clone(),
             config,
             prev_run: None,
-            event_tx
+            event_tx,
         })
     }
 
@@ -79,21 +77,12 @@ impl CustomIntegration for Neato {
             self.prev_run = Some(prev_run);
         }
 
-        // let device = mk_neato_device(&self.id, &self.config, false);
-        // let robots = get_robots(&self.config).await?;
-
-        // for robot in robots {
-        //     debug!("Found robot: {:?}", robot.name);
-        // }
-        // self.event_tx.send(Message::RecvDeviceState { device });
-
         Ok(())
     }
 
     async fn start(&mut self) -> color_eyre::Result<()> {
-        let neato = self.clone();
         let robots = update_robot_states(get_robots(&self.config).await?).await?;
-
+        
         for robot in robots {
             let r = robot.clone();
             debug!("Found robot: {:?}", robot.name);
@@ -103,7 +92,9 @@ impl CustomIntegration for Neato {
             debug!("Device: {:?}", device);
             self.event_tx.send(Message::RecvDeviceState { device })
         }
-        tokio::spawn(async { poll_robots(neato).await });
+        
+        // let neato = self.clone();
+        // tokio::spawn(async { poll_robots_until_all_idle(neato).await });
         Ok(())
     }
 
@@ -112,19 +103,25 @@ impl CustomIntegration for Neato {
     }
 
     async fn run_integration_action(&mut self, payload: &IntegrationActionPayload) -> Result<()> {
-        match payload.to_string().as_str() {
+        let result = match payload.to_string().as_str() {
             "clean_house" | "clean_house_force" => {
                 let force = payload.to_string() == "clean_house_force";
                 let local = chrono::Local::now().naive_local();
 
-                if !(self.config.cleaning_time_start..self.config.cleaning_time_end)
+                if self.config.dummy {
+                    let robots = update_robot_states(get_robots(&self.config).await?).await?;
+                    debug!("Found robots: {:?}", robots);
+                    return Ok(());
+                }
+
+                if !force && !(self.config.cleaning_time_start..self.config.cleaning_time_end)
                     .contains(&local.time())
                 {
                     info!("Skipping cleaning due to wrong time of day");
                     return Ok(());
                 }
 
-                if !force && !self.config.dummy {
+                if !force {
                     let weekday = local.weekday();
 
                     if !self.config.cleaning_days.contains(&weekday) {
@@ -148,7 +145,7 @@ impl CustomIntegration for Neato {
                 }
 
                 self.prev_run = Some(local);
-                let result = clean_house(&self.config, &RobotCmd::StartCleaning).await;
+                let result = run_actions(&self.config, &RobotCmd::StartCleaning).await;
 
                 db_set_neato_last_run(&self.integration_id, local)
                     .await
@@ -170,9 +167,20 @@ impl CustomIntegration for Neato {
 
                 result
             }
-            "stop_cleaning" => clean_house(&self.config, &RobotCmd::StopCleaning).await,
+            "stop_cleaning" => run_actions(&self.config, &RobotCmd::StopCleaning).await,
+            "pause_cleaning" => run_actions(&self.config, &RobotCmd::PauseCleaning).await,
+            "resume_cleaning" => run_actions(&self.config, &RobotCmd::ResumeCleaning).await,
+            "send_to_base" | "go_to_base" => run_actions(&self.config, &RobotCmd::SendToBase).await,
+            "debug" => run_actions(&self.config, &RobotCmd::GetRobotState).await,
             _ => Ok(()),
+        };
+        
+        if !self.config.dummy && payload.to_string() != "debug" {
+            let neato = self.clone();
+            tokio::spawn(async { poll_robots_until_all_idle(neato).await });
         }
+
+        result
     }
 }
 
@@ -192,26 +200,36 @@ fn mk_neato_device(config: &Neato, robot: &Robot) -> Device {
 
 static POLL_RATE: u64 = 60 * 1000;
 
-async fn poll_robots(neato: Neato) -> Result<()> {
+async fn poll_robots_until_all_idle(neato: Neato) -> Result<()> {
     let poll_rate = Duration::from_millis(POLL_RATE);
     let mut interval = time::interval(poll_rate);
 
     loop {
         interval.tick().await;
 
+
         let event_tx = neato.event_tx.clone();
 
         let robots = update_robot_states(get_robots(&neato.config).await?).await?;
 
+        let mut idle_vec = Vec::new();
         for robot in robots {
             let r = robot.clone();
-            // debug_robot_states(robot).await?;
+
+            // Add state to idle_vec to determine if we want to quit polling
+            idle_vec.push(r.state.as_ref().unwrap().state == RobotState::Idle);
+
             let device = mk_neato_device(&neato, &r);
             debug!("Neato: {:?}", device);
-            event_tx.send(Message::SetExpectedState {
+            event_tx.send(Message::RecvDeviceState {
                 device,
-                set_scene: false,
+                // set_scene: false,
             });
         }
+
+        if idle_vec.iter().all(|&x| x) {
+            break;
+        }
     }
+    Ok(())
 }
