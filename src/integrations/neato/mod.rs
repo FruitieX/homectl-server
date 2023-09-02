@@ -103,6 +103,7 @@ impl CustomIntegration for Neato {
     }
 
     async fn run_integration_action(&mut self, payload: &IntegrationActionPayload) -> Result<()> {
+        let neato = self.clone();
         let result = match payload.to_string().as_str() {
             "clean_house" | "clean_house_force" => {
                 let force = payload.to_string() == "clean_house_force";
@@ -165,21 +166,34 @@ impl CustomIntegration for Neato {
                     });
                 }
 
+                tokio::spawn(async { poll_robots_until_action_complete(neato, RobotCmd::StartCleaning).await });
+                
                 result
             }
-            "stop_cleaning" => run_actions(&self.config, &RobotCmd::StopCleaning).await,
-            "pause_cleaning" => run_actions(&self.config, &RobotCmd::PauseCleaning).await,
-            "resume_cleaning" => run_actions(&self.config, &RobotCmd::ResumeCleaning).await,
-            "send_to_base" | "go_to_base" => run_actions(&self.config, &RobotCmd::SendToBase).await,
+            "stop_cleaning" => {
+                let result = run_actions(&self.config, &RobotCmd::StopCleaning).await;
+                tokio::spawn(async { poll_robots_until_action_complete(neato, RobotCmd::StopCleaning).await });
+                result
+            },
+            "pause_cleaning" => {
+                let result = run_actions(&self.config, &RobotCmd::PauseCleaning).await;
+                tokio::spawn(async { poll_robots_until_action_complete(neato, RobotCmd::PauseCleaning).await });                
+                result
+            },
+            "resume_cleaning" => {
+                let result = run_actions(&self.config, &RobotCmd::ResumeCleaning).await;
+                tokio::spawn(async { poll_robots_until_action_complete(neato, RobotCmd::ResumeCleaning).await });                
+                result
+            },
+            "send_to_base" | "go_to_base" => {
+                let result = run_actions(&self.config, &RobotCmd::SendToBase).await;
+                tokio::spawn(async { poll_robots_until_action_complete(neato, RobotCmd::SendToBase).await });                
+                result
+            },
             "debug" => run_actions(&self.config, &RobotCmd::GetRobotState).await,
             _ => Ok(()),
         };
         
-        if !self.config.dummy && payload.to_string() != "debug" {
-            let neato = self.clone();
-            tokio::spawn(async { poll_robots_until_all_idle(neato).await });
-        }
-
         result
     }
 }
@@ -200,13 +214,15 @@ fn mk_neato_device(config: &Neato, robot: &Robot) -> Device {
 
 static POLL_RATE: u64 = 60 * 1000;
 
-async fn poll_robots_until_all_idle(neato: Neato) -> Result<()> {
+async fn poll_robots_until_action_complete(neato: Neato, cmd: RobotCmd) -> Result<()> {
     let poll_rate = Duration::from_millis(POLL_RATE);
     let mut interval = time::interval(poll_rate);
 
+    if RobotCmd::GetRobotState == cmd {
+        return Ok(())
+    }
     loop {
         interval.tick().await;
-
 
         let event_tx = neato.event_tx.clone();
 
@@ -216,8 +232,19 @@ async fn poll_robots_until_all_idle(neato: Neato) -> Result<()> {
         for robot in robots {
             let r = robot.clone();
 
+            let state = match cmd {
+                RobotCmd::StartCleaning => RobotState::Busy,
+                RobotCmd::StopCleaning => RobotState::Idle,
+                RobotCmd::PauseCleaning => RobotState::Paused,
+                RobotCmd::ResumeCleaning => RobotState::Busy,
+                RobotCmd::SendToBase => RobotState::Busy,
+                _ => RobotState::Invalid,
+            };
+
+            // In the end we want to stop polling when the state has changed
+            // from what it currently is.
             // Add state to idle_vec to determine if we want to quit polling
-            idle_vec.push(r.state.as_ref().unwrap().state == RobotState::Idle);
+            idle_vec.push(r.state.as_ref().unwrap().state != state);
 
             let device = mk_neato_device(&neato, &r);
             debug!("Neato: {:?}", device);

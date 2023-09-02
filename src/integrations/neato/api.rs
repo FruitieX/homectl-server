@@ -132,6 +132,7 @@ const BASE_URL: &str = "https://beehive.neatocloud.com";
 
 type HmacSha256 = Hmac<Sha256>;
 
+#[derive(PartialEq)]
 pub enum RobotCmd {
     StartCleaning,
     StopCleaning,
