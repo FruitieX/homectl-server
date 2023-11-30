@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/FruitieX/homectl-server/compare/v0.6.3...v0.7.0) (2023-11-30)
+
+
+### Features
+
+* support forcibly triggering routines ([65c2d77](https://github.com/FruitieX/homectl-server/commit/65c2d775c225b8abf28e8ec8433159d8d3e72e2f))
+
+
+### Bug Fixes
+
+* drop neato and wake_on_lan integrations ([161480d](https://github.com/FruitieX/homectl-server/commit/161480d5ad2bae09f7a07e0ae8c608c191c57b41))
+
 ## [0.6.3](https://github.com/FruitieX/homectl-server/compare/v0.6.2...v0.6.3) (2023-11-25)
 
 
