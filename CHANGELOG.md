@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.9.4](https://github.com/FruitieX/homectl-server/compare/v0.9.3...v0.9.4) (2024-03-28)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate async-trait to v0.1.78 ([0443b35](https://github.com/FruitieX/homectl-server/commit/0443b352c9df713b8db66063e158973a7c53b42a))
+* **deps:** update rust crate async-trait to v0.1.79 ([9834234](https://github.com/FruitieX/homectl-server/commit/9834234162afba30db75bd8d13a98f9ab5581bf0))
+* **deps:** update rust crate bytes to v1.6.0 ([9886886](https://github.com/FruitieX/homectl-server/commit/9886886171a62341d27326a2aba6b05becb8c5a6))
+* **deps:** update rust crate chrono to v0.4.37 ([d00431e](https://github.com/FruitieX/homectl-server/commit/d00431eae37be6e388ee77592fd9060d36d64cbc))
+* **deps:** update rust crate color-eyre to v0.6.3 ([ac32494](https://github.com/FruitieX/homectl-server/commit/ac324944a5183ca1163181d35ca6b6a181ae2fc2))
+* **deps:** update rust crate jsonptr to v0.4.5 ([3bb9271](https://github.com/FruitieX/homectl-server/commit/3bb927179afc6888277d9e39542ddb9ed7985690))
+* **deps:** update rust crate jsonptr to v0.4.6 ([2ca6342](https://github.com/FruitieX/homectl-server/commit/2ca6342bd538692996c78016de3d84024556c47f))
+* **deps:** update rust crate jsonptr to v0.4.7 ([f5d8170](https://github.com/FruitieX/homectl-server/commit/f5d81705ad826b5bf60f5dcb88f04dd437e0755b))
+* **deps:** update rust crate log to v0.4.21 ([8c253cd](https://github.com/FruitieX/homectl-server/commit/8c253cd9db13b58b736a2e9abc59ef91e07ba159))
+* **deps:** update rust crate palette to v0.7.5 ([3fc62b2](https://github.com/FruitieX/homectl-server/commit/3fc62b28e2d45a1f56b7b7bca56834cf3c2044ba))
+* **deps:** update rust crate rumqttc to v0.24.0 ([52d886f](https://github.com/FruitieX/homectl-server/commit/52d886f19ebfa77dc0ca3feccd880b9846f6ee33))
+* **deps:** update rust crate serde to v1.0.197 ([40fade7](https://github.com/FruitieX/homectl-server/commit/40fade720d4690af1bed86ce3edd030e679aeeae))
+* **deps:** update rust crate serde_json to v1.0.114 ([842f156](https://github.com/FruitieX/homectl-server/commit/842f156d9f4da25ff5fd2f85714eb514ac929265))
+* **deps:** update rust crate serde_json to v1.0.115 ([70bf768](https://github.com/FruitieX/homectl-server/commit/70bf768ef105fbc346090f07c6630a35d3ce3d96))
+* **deps:** update rust crate serde_json_path to v0.6.6 ([bd10ce5](https://github.com/FruitieX/homectl-server/commit/bd10ce50bba6c71968c89d79cc926016329c5e43))
+* **deps:** update rust crate serde_json_path to v0.6.7 ([74f0c29](https://github.com/FruitieX/homectl-server/commit/74f0c29b30b889aa028b98dd9ef12bb40bb47e10))
+* **deps:** update rust crate serde_path_to_error to v0.1.16 ([735e147](https://github.com/FruitieX/homectl-server/commit/735e1471f399bdbd8bb824026e55aae8f67bda53))
+* **deps:** update rust crate sqlx to v0.7.4 ([5f692b8](https://github.com/FruitieX/homectl-server/commit/5f692b8c81b8929ec3e58bb18e5e2697c8a890e0))
+* **deps:** update rust crate tokio-stream to v0.1.15 ([1ad0680](https://github.com/FruitieX/homectl-server/commit/1ad06801542907e62f5ce6af78600f2f2bcbd972))
+* **deps:** update rust crate toml to v0.8.11 ([3114c50](https://github.com/FruitieX/homectl-server/commit/3114c506168e8791db9c35adc338d6a512539ff2))
+* **deps:** update rust crate toml to v0.8.12 ([5f8cc7d](https://github.com/FruitieX/homectl-server/commit/5f8cc7d4651a9abf519ab674f69c67c449de99e1))
+* **deps:** update rust crate ts-rs to v8 ([98dbbe3](https://github.com/FruitieX/homectl-server/commit/98dbbe38121e930f88f76d29714aed71fe4d88f4))
+* **deps:** update rust crate ts-rs to v8.1.0 ([7170d5f](https://github.com/FruitieX/homectl-server/commit/7170d5f5ad0a894fd9f172fb3ea9b799b1b042d0))
+
 ## [0.9.3](https://github.com/FruitieX/homectl-server/compare/v0.9.2...v0.9.3) (2024-02-19)
 
 
