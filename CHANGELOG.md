@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.9.6](https://github.com/FruitieX/homectl-server/compare/v0.9.5...v0.9.6) (2024-08-09)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate bytes to v1.7.0 ([3b2d414](https://github.com/FruitieX/homectl-server/commit/3b2d414415f6e77184b8ca410a4ac30a4a789c0f))
+* **deps:** update rust crate bytes to v1.7.1 ([b31e7ab](https://github.com/FruitieX/homectl-server/commit/b31e7ab9256829d734218b9976fd7fd0c34e7b8e))
+* **deps:** update rust crate croner to v2.0.5 ([f7dc53d](https://github.com/FruitieX/homectl-server/commit/f7dc53db8e6a99da44f6e144c94484d9e6e7ba9d))
+* **deps:** update rust crate ordered-float to v4.2.2 ([181105a](https://github.com/FruitieX/homectl-server/commit/181105a9de4f8b88e74f51c1d0b5fed8c1771510))
+* **deps:** update rust crate serde to v1.0.205 ([efe543b](https://github.com/FruitieX/homectl-server/commit/efe543b26e6218a1fea33f33bb44d0c2799d3dab))
+* **deps:** update rust crate serde_json to v1.0.121 ([647c5f5](https://github.com/FruitieX/homectl-server/commit/647c5f53c436b6fc0399f48bcac1bdb47c83a812))
+* **deps:** update rust crate serde_json to v1.0.122 ([e265a1b](https://github.com/FruitieX/homectl-server/commit/e265a1bbd3b7598a9fdc6c730f5cae7f72516dce))
+* **deps:** update rust crate tokio to v1.39.0 ([53ba473](https://github.com/FruitieX/homectl-server/commit/53ba473eef5e58e73db75f1ad10518bdf6cd0db7))
+* **deps:** update rust crate tokio to v1.39.1 ([2c0a46e](https://github.com/FruitieX/homectl-server/commit/2c0a46e676cdbd862da77c0cb9be354797d736dc))
+* **deps:** update rust crate tokio to v1.39.2 ([9a62cfb](https://github.com/FruitieX/homectl-server/commit/9a62cfb48ca55c82addeede5b7f551efb7ebd1f0))
+* **deps:** update rust crate toml to v0.8.16 ([89d033f](https://github.com/FruitieX/homectl-server/commit/89d033f960611c07396853f4406845bf517da91a))
+* **deps:** update rust crate toml to v0.8.17 ([3cc8799](https://github.com/FruitieX/homectl-server/commit/3cc87996f79ce714884e6f0e46bea643dc673c93))
+* **deps:** update rust crate toml to v0.8.19 ([09f69b4](https://github.com/FruitieX/homectl-server/commit/09f69b468a4bd485f023a38b1cee7e247e2078f3))
+
 ## [0.9.5](https://github.com/FruitieX/homectl-server/compare/v0.9.4...v0.9.5) (2024-07-23)
 
 
